@@ -1,19 +1,17 @@
-package com.loyltworks.tokenlibrary
+package com.loyltworks.tokenlibrary.data
+
 import TokenResponse
+import android.content.Context
+import com.loyltworks.tokenlibrary.localprefrencehelper.TokenPrefrenceHelper
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
-import okhttp3.Call
-import okhttp3.Callback
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
-import okhttp3.Response
 import okhttp3.logging.HttpLoggingInterceptor
-import java.io.IOException
 
-
-class AuthAPICall {
+object AuthAPICall {
 
     //OK HTTP CLIENT FOR PRINTING REQUEST AND RESPONSE WE ARE ADDING OKHTTP LOGIN
 
@@ -27,8 +25,7 @@ class AuthAPICall {
             .build()
     }
 
-   suspend fun run(url: String, requestBody: String): TokenResponse? {
-       var refToken: TokenResponse? =null
+    suspend fun run(context: Context, url: String, requestBody: String): TokenResponse? {
         val mediaType = "application/x-www-from-urlencoded".toMediaTypeOrNull()
         val body = requestBody.toRequestBody(mediaType)
 
@@ -39,26 +36,22 @@ class AuthAPICall {
             .addHeader("cache-control", "no-cache")
             .build()
 
+        client.newCall(request).execute().use { response ->
+            return if(response.isSuccessful) {
+                val token_data = Moshi.Builder()
+                    .add(KotlinJsonAdapterFactory())
+                    .build()
+                    .adapter(TokenResponse::class.java)
+                    .fromJson(response.body?.source()?.buffer)
 
+                TokenPrefrenceHelper.setTokenDetails(context, token_data!!)
 
-        client.newCall(request).enqueue(object:Callback{
-            override fun onFailure(call: Call, e: IOException) {
-
+                token_data
+            }else {
+                null
             }
+        }
 
-            override fun onResponse(call: Call, response: Response) {
-                    if(response.isSuccessful){
-                        refToken = Moshi.Builder()
-                            .add(KotlinJsonAdapterFactory())
-                            .build()
-                            .adapter(TokenResponse::class.java)
-                            .fromJson(response.body?.source()?.buffer)!!
-                    }
-            }
 
-        })
-
-       return if(refToken!=null) refToken else null
-}
-
+    }
 }

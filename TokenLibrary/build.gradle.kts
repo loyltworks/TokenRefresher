@@ -71,4 +71,8 @@ dependencies {
     implementation ("com.squareup.moshi:moshi-kotlin:1.15.1")
     implementation ("com.squareup.retrofit2:converter-moshi:2.11.0")
     implementation ("com.jakewharton.retrofit:retrofit2-kotlin-coroutines-adapter:0.9.2")
+
+
+    //for secure prefrence helper
+    implementation ("androidx.security:security-crypto:1.1.0-alpha06")
 }

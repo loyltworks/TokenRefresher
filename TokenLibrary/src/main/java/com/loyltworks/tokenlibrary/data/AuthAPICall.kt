@@ -26,7 +26,7 @@ object AuthAPICall {
     }
 
     suspend fun run(context: Context, url: String, requestBody: String): TokenResponse? {
-        val mediaType = "application/x-www-from-urlencoded".toMediaTypeOrNull()
+        val mediaType = "application/x-www-form-urlencoded".toMediaTypeOrNull()
         val body = requestBody.toRequestBody(mediaType)
 
         val request: Request = Request.Builder()
